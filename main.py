@@ -1,11 +1,20 @@
+import pymongo
 import requests
 from bs4 import BeautifulSoup
+from pymongo_get_database import get_database
+import pymongo
+
+# dbname = get_database()
+# collection_name = dbname["courses"]
+client = pymongo.MongoClient('mongodb+srv://dariotao01:U2lz6UlVYc4FVVSh@cluster0.ztilryq.mongodb.net/?retryWrites=true&w=majority')
+db = client['UofTCourses']
+collection_name = db['courses']
 
 default_url = "https://artsci.calendar.utoronto.ca/search-courses?course_keyword=&field_breadth_requirements_value=All&field_distribution_requirements_value=All&field_prerequisite_value=&field_section_value=All&page="
-num_range = 169  # change back to 169
+num_range = 1  # change back to 169
 
 
-course_objects = []
+course_objects = []  # stores course objects that has attributes: course_code, course_name and rev_prereq
 
 
 class Course:  # to create a new course object that stores code, course name, and reverse prerequisites
@@ -18,6 +27,7 @@ class Course:  # to create a new course object that stores code, course name, an
         return self.course_code
 
 
+# collect every course that UofT offers
 for num in range(num_range + 1):
     soup = BeautifulSoup(requests.get(default_url + str(num)).content,
                          'html.parser')
@@ -39,6 +49,8 @@ for num in range(num_range + 1):
 
 default_url_prereq = "https://artsci.calendar.utoronto.ca/search-courses?course_keyword=&field_section_value=All&field_prerequisite_value=&field_breadth_requirements_value=All&field_distribution_requirements_value=All"
 
+
+# collect each courses reverse pre-reqs
 for course in course_objects:  # loop through every course
     url = default_url_prereq[:116] + course.course_code + default_url_prereq[116:]  # update url for course code
     soup = BeautifulSoup((requests.get(url)).content, 'html.parser')
@@ -93,12 +105,26 @@ for course in course_objects:  # loop through every course
 
     course.rev_prereq = prereqs
 
-    print(course.course_code)
-    print(course.course_name)
-    print(course.rev_prereq)
+    # print(course.course_code)
+    # print(course.course_name)
+    # print(course.rev_prereq)
+
+    # convert course.rev_prereq into a list of course codes. Because currently, it is a list of course objects.
+    course_code_names = []
+    for course1 in course.rev_prereq:
+        course_code_names.append(course1.course_code)
+
+    # for MongoDB:
+    # need to create a dictionary object for each course that has keys: course code, course name, and pre-requisites to put into collections
+    item_1 = {
+        "course_code": str(course.course_code),
+        "course_name": str(course.course_name),
+        "course_reverse_prerequisites": course_code_names
+    }
+    collection_name.insert_one(item_1)
 
 
-# # finding the last page:
+# # finding the last page (test code):
 # a_url = "https://artsci.calendar.utoronto.ca/search-courses?course_keyword=&field_section_value=All&field_prerequisite_value=MAT137&field_breadth_requirements_value=All&field_distribution_requirements_value=All"
 # soup = BeautifulSoup((requests.get(a_url)).content, 'html.parser')
 # # print(soup.prettify())
