@@ -13,7 +13,6 @@ collection_name = db['courses']
 default_url = "https://artsci.calendar.utoronto.ca/search-courses?course_keyword=&field_breadth_requirements_value=All&field_distribution_requirements_value=All&field_prerequisite_value=&field_section_value=All&page="
 num_range = 1  # change back to 169
 
-
 course_objects = []  # stores course objects that has attributes: course_code, course_name and rev_prereq
 
 
@@ -29,8 +28,7 @@ class Course:  # to create a new course object that stores code, course name, an
 
 # collect every course that UofT offers
 for num in range(num_range + 1):
-    soup = BeautifulSoup(requests.get(default_url + str(num)).content,
-                         'html.parser')
+    soup = BeautifulSoup(requests.get(default_url + str(num)).content, 'html.parser')
     title = soup.find_all('h3')
     for item in title:
         # course_names.append(item.find("div").text[13:])  # course names
@@ -121,7 +119,7 @@ for course in course_objects:  # loop through every course
         "course_name": str(course.course_name),
         "course_reverse_prerequisites": course_code_names
     }
-    collection_name.insert_one(item_1)
+    collection_name.insert_one(item_1)  # this is the code that inserts these dictionary? objects into the mongoDB database.
 
 
 # # finding the last page (test code):
