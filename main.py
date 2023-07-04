@@ -39,9 +39,6 @@ for num in range(num_range + 1):
 
         course_objects.append(Course(course_code, course_name, []))
 
-# print(course_codes)
-# print(course_names)
-
 # print(soup.prettify())  to make the html stuff more readable
 
 
