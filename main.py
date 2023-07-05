@@ -4,8 +4,7 @@ from bs4 import BeautifulSoup
 from pymongo_get_database import get_database
 import pymongo
 
-# dbname = get_database()
-# collection_name = dbname["courses"]
+
 client = pymongo.MongoClient('mongodb+srv://dariotao01:U2lz6UlVYc4FVVSh@cluster0.ztilryq.mongodb.net/?retryWrites=true&w=majority')
 db = client['UofTCourses']
 collection_name = db['courses']
